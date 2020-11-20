@@ -2,35 +2,68 @@
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
+import os
+import shutil
 
 
-def scraping_book_description():
+def scraping_book_description_and_img(dic_name_and_url):
     """
-    Fonction qui permet de récup les données d'un book
-    """
-    url = "https://books.toscrape.com/catalogue/category/books/sequential-art_5/index.html"
-    #on recup l'url
-    response = requests.get(url)
-    if response.ok:
-        soup = BeautifulSoup(response.text, "html.parser")
-        title = soup.find('h1')
-        description = soup.findAll('p')
-        image = soup.find('img')
-        src = image['src']
-        base_url = "http://books.toscrape.com/"
-        url_image = urljoin(base_url, src)
-        list_book = soup.findAll('td')
-        dic_book = {'product_page_url': url, 'universal_product_code': list_book[0].text,
-                    'category': list_book[1].text,
-                    'title': title.text, 'product_description': description[3].text,
-                    'price_including_tax': list_book[3].text, 'price_excluding_tax': list_book[2].text,
-                    'number_available': list_book[5].text, 'review_rating': list_book[6].text,
-                    'url_image': url_image
-                    }
-        with open('description_book.csv', 'w', encoding='utf-8') as file:
-            for key, values in dic_book.items():
-                file.write(key + ':' + values + '\n')
-                print(values)
+    fonction qui va créer un dossier par categorie, créer un fichier csv dans le dossier
+     categorie avec les données de chaques book par categorie et un dossier img dans chaque dossier categorie
+    avec les images et titres de chaque book par categorie.
+
+     :param le dictionnaire qui regroupe le nom des categories et les urls par categories
+     """
+    #pour chaque categories
+    for key, values in dic_name_and_url.items():
+        #creation des dossiers
+        os.makedirs(key, exist_ok=True)
+        os.makedirs("C:\\Users\\marie\\PycharmProjects\\projetOcr2\\" + key + "\\img", exist_ok=True)
+        #creation du fichier csv
+        with open(key + "/description_book_" + key + ".csv", 'w', encoding='utf-8') as file:
+            #pour chaque urls dans la categorie on scrap et récup les données
+            for url_book in values:
+                url = url_book
+                response = requests.get(url)
+                if response.ok:
+                    soup = BeautifulSoup(response.text, "html.parser")
+                    title = soup.find('div', {'class': 'col-sm-6 product_main'}).find('h1')
+                    description = soup.find('article', {'class': 'product_page'}).find_all('p')
+                    image = soup.find('div', {'class': 'item active'}).find('img')
+                    src = image['src']
+                    name_image = image['alt']
+                    #ici on enleve les caractères spéciaux
+                    real_name_image = ''.join(e for e in name_image if e.isalnum())
+                    base_url = "http://books.toscrape.com/"
+                    url_image = urljoin(base_url, src)
+                    #partie pour récup l'image et l'enregistrer dans le dossier img
+                    responses = requests.get(url_image, stream=True)
+                    if responses.ok:
+                        files = open("C:\\Users\\marie\\PycharmProjects\\projetOcr2\\" + key + "\\img\\"
+                                     + real_name_image + ".png", 'wb')
+                        responses.raw.decode_content = True
+                        shutil.copyfileobj(responses.raw, files)
+                        del responses
+                    list_book = soup.find("table", {"class": 'table-striped'}).find_all('td')
+                    del response
+                    #dictionnaire des données d'un book
+                    dic_book = {'product_page_url': url,
+                                'universal_product_code': list_book[0].text,
+                                'category': list_book[1].text,
+                                'title': title.text,
+                                'product_description': description[3].text,
+                                'price_including_tax': list_book[3].text,
+                                'price_excluding_tax': list_book[2].text,
+                                'number_available': list_book[5].text,
+                                'review_rating': list_book[6].text,
+                                'url_image': url_image
+                                }
+                #on ecrit les données du book dans le fichier csv             }
+                for clef, valeurs in dic_book.items():
+                    file.write(clef + ':' + valeurs + '\n')
+                file.write('\n\n')
+    file.close()
+    files.close()
 
 
 def scraping_book_by_categorie(urls_category):
@@ -65,8 +98,10 @@ def scraping_book_by_categorie(urls_category):
             # jusqu'a qu'il n'y ai plus de next (pagination)
             while button_next:
                 new_url = url[:-10]
+                #ici ca permet de voir si la condition de la boucle est bonne avec button_next
                 button_next = soup.find('li', {'class': 'next'}).find('a')
                 href = button_next['href']
+                #nouvelle page nouvelle url qu'on récup
                 url = urljoin(new_url, href)
                 response = requests.get(url)
                 soup = BeautifulSoup(response.text, "html.parser")
