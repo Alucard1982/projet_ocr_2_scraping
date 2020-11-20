@@ -9,6 +9,7 @@ def scraping_book_description():
     Fonction qui permet de récup les données d'un book
     """
     url = "https://books.toscrape.com/catalogue/category/books/sequential-art_5/index.html"
+    #on recup l'url
     response = requests.get(url)
     if response.ok:
         soup = BeautifulSoup(response.text, "html.parser")
@@ -32,34 +33,36 @@ def scraping_book_description():
                 print(values)
 
 
-def scraping_book_by_categorie():
+def scraping_book_by_categorie(urls_category):
     """
+    prend en parametre d'entrer une list des urls des tte la categories
     fonction qui permet de récuperer les urls de tout les book par catégories
-    :return:
+    :return:une list avec pour chaque list de categorie ses urls respectives(des listes dans une liste)
     """
     list_link_book = []
     list_link_book_by_category = []
-
-    url = "https://books.toscrape.com/catalogue/category/books/sequential-art_5/index.html"
-    response = requests.get(url)
-    if response.ok:
-        soup = BeautifulSoup(response.text, "html.parser")
+    #on boucle sur chaque categories
+    for url_category in urls_category:
+        url = url_category
+        response = requests.get(url)
+        if response.ok:
+            soup = BeautifulSoup(response.text, "html.parser")
+            try:
+                button_next = soup.find('li', {'class': 'next'}).find('a')
+            except:
+                pass
+            soup = BeautifulSoup(response.text, "html.parser")
+            urls_book = soup.findAll('div', {'class': 'image_container'})
+            del response
+            for url_book in urls_book:
+                a = url_book.find('a')
+                link_book = a['href']
+                base_url = "http://books.toscrape.com"
+                real_link_book = urljoin(base_url, '/catalogue' + link_book[8:])
+                list_link_book.append(real_link_book)
         try:
-            button_next = soup.find('li', {'class': 'next'}).find('a')
-        except:
-            pass
-        soup = BeautifulSoup(response.text, "html.parser")
-        urls_book = soup.findAll('div', {'class': 'image_container'})
-        del response
-        for url_book in urls_book:
-            a = url_book.find('a')
-            link_book = a['href']
-            base_url = "http://books.toscrape.com"
-            real_link_book = urljoin(base_url, '/catalogue' + link_book[8:])
-            list_link_book.append(real_link_book)
-        try:
-            #si il ya un bouton next dans la page alors on recup l'url de la prochaine page pour la scraper
-            # jusqu'a la dernière ...(pagination)
+            # tant que qu'il ya un button next on recup l'url de la page suivante et on scrap la page
+            # jusqu'a qu'il n'y ai plus de next (pagination)
             while button_next:
                 new_url = url[:-10]
                 button_next = soup.find('li', {'class': 'next'}).find('a')
@@ -69,6 +72,7 @@ def scraping_book_by_categorie():
                 soup = BeautifulSoup(response.text, "html.parser")
                 urls_book = soup.findAll('div', {'class': 'image_container'})
                 del response
+                #on cherche tte les urls de book par page
                 for url_book in urls_book:
                     a = url_book.find('a')
                     link_book = a['href']
@@ -78,13 +82,15 @@ def scraping_book_by_categorie():
         except:
             pass
         list_link_book_by_category.append(list_link_book)
-        print(list_link_book_by_category)
+        list_link_book = []
+
+    return list_link_book_by_category
 
 
 def scraping_category():
     """
     fonction qui permet de récuperer toutes les urls des catégories
-    :return:la list des urls de ttes les categories
+    :return:la list des urls de toutes les categories
     """
 
     list_link_categorie = []
@@ -100,5 +106,4 @@ def scraping_category():
             base_url = "http://books.toscrape.com"
             real_link_category = urljoin(base_url, link_category)
             list_link_categorie.append(real_link_category)
-        print(list_link_categorie)
-    #return list_link_categorie
+    return list_link_categorie
