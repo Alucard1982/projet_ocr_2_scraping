@@ -5,6 +5,9 @@ from urllib.parse import urljoin
 
 
 def scraping_book_description():
+    """
+    Fonction qui permet de récup les données d'un book
+    """
     url = "https://books.toscrape.com/catalogue/category/books/sequential-art_5/index.html"
     response = requests.get(url)
     if response.ok:
@@ -30,6 +33,10 @@ def scraping_book_description():
 
 
 def scraping_book_by_categorie():
+    """
+    fonction qui permet de récuperer les urls de tout les book par catégories
+    :return:
+    """
     list_link_book = []
     list_link_book_by_category = []
 
@@ -51,6 +58,8 @@ def scraping_book_by_categorie():
             real_link_book = urljoin(base_url, '/catalogue' + link_book[8:])
             list_link_book.append(real_link_book)
         try:
+            #si il ya un bouton next dans la page alors on recup l'url de la prochaine page pour la scraper
+            # jusqu'a la dernière ...(pagination)
             while button_next:
                 new_url = url[:-10]
                 button_next = soup.find('li', {'class': 'next'}).find('a')
@@ -72,3 +81,24 @@ def scraping_book_by_categorie():
         print(list_link_book_by_category)
 
 
+def scraping_category():
+    """
+    fonction qui permet de récuperer toutes les urls des catégories
+    :return:la list des urls de ttes les categories
+    """
+
+    list_link_categorie = []
+    url = "https://books.toscrape.com/"
+    response = requests.get(url)
+    if response.ok:
+        soup = BeautifulSoup(response.text, "html.parser")
+        urls_category = soup.find('ul', {'class': 'nav nav-list'}).find('ul').find_all('li')
+        del response
+        for url_category in urls_category:
+            a = url_category.find('a')
+            link_category = a['href']
+            base_url = "http://books.toscrape.com"
+            real_link_category = urljoin(base_url, link_category)
+            list_link_categorie.append(real_link_category)
+        print(list_link_categorie)
+    #return list_link_categorie
