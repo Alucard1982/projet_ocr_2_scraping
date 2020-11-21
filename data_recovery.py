@@ -73,12 +73,13 @@ def scraping_book_by_categorie(urls_category):
     """
     list_link_book = []
     list_link_book_by_category = []
-    # on boucle sur chaque categories
+    # on boucle sur chaque url categorie
     for url_category in urls_category:
         url = url_category
         response = requests.get(url)
         if response.ok:
             soup = BeautifulSoup(response.text, "html.parser")
+            #on cherche si il ya un bouton next dans la page
             try:
                 button_next = soup.find('li', {'class': 'next'}).find('a')
             except:
@@ -93,7 +94,7 @@ def scraping_book_by_categorie(urls_category):
                 real_link_book = urljoin(base_url, '/catalogue' + link_book[8:])
                 list_link_book.append(real_link_book)
             try:
-                # tant que qu'il ya un button next on recup l'url de la page suivante et on scrap la page
+                # tant qu'il ya un button next on recup l'url de la page suivante et on scrap la page
                 # jusqu'a qu'il n'y ai plus de next (pagination)
                 while button_next:
                     new_url = url[:-10]
@@ -107,16 +108,19 @@ def scraping_book_by_categorie(urls_category):
                         soup = BeautifulSoup(response.text, "html.parser")
                         urls_book = soup.findAll('div', {'class': 'image_container'})
                         del response
-                        # on cherche tte les urls de book par page
+                        # on cherche tte les urls des book par page
                         for url_book in urls_book:
                             a = url_book.find('a')
                             link_book = a['href']
                             base_url = "http://books.toscrape.com"
                             real_link_book = urljoin(base_url, '/catalogue' + link_book[8:])
+                            #on stock les urls des book dans un tableau
                             list_link_book.append(real_link_book)
             except:
                 pass
+            #on stock chaque tableau d'urls par categories
             list_link_book_by_category.append(list_link_book)
+            #on vide la tableau des urls des book pour qu'a le prochaine categorie il soit vide
             list_link_book = []
     return list_link_book_by_category
 
