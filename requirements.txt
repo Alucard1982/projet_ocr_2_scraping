@@ -7,4 +7,5 @@ recordtype==1.3
 requests==2.25.0
 six==1.15.0
 soupsieve==2.0.1
+tqdm==4.53.0
 urllib3==1.26.2
