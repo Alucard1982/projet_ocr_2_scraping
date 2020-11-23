@@ -20,7 +20,8 @@ def data_display_book(list_name_dic_book_by_categorie):
         file.write('product_page_url,universal_product_code,category,title,product_description,price_including_tax,'
                    'price_excluding_tax,number_available,review_rating,url_image\n')
         for dic_book in tqdm(list_dic_book):
-            writer = csv.DictWriter(file, dic_book.keys(), dialect='excel', lineterminator="\n")
+            writer = csv.DictWriter(file, dic_book.keys(), dialect='excel', lineterminator="\n",
+                                    quoting=csv.QUOTE_MINIMAL)
             response = requests.get(dic_book['product_page_url'])
             soup = BeautifulSoup(response.text, "html.parser")
             if response.ok:

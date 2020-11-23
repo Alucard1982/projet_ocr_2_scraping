@@ -102,7 +102,7 @@ def scraping_book_description(name_and_url):
                             'universal_product_code': list_book[0].text,
                             'category': list_book[1].text,
                             'title': title.text,
-                            'product_description': description[3].text.replace(',', ''),
+                            'product_description': description[3].text,
                             'price_including_tax': list_book[3].text,
                             'price_excluding_tax': list_book[2].text,
                             'number_available': list_book[5].text,
