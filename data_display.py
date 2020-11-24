@@ -39,5 +39,7 @@ def data_display_book(list_name_dic_book_by_categorie):
         file.close()
         files.close()
 
-#on pourrait écrire une fonction avec matplotlib pour créer un graphique avec les données.Un graphique par exemple
-#qui donnerait la moyenne des prix des book par catgeorie.(more fun)
+
+# on pourrait écrire une fonction avec matplotlib pour créer un graphique avec les données.Un graphique par exemple
+# qui donnerait la moyenne des prix des book par categeorie.(more fun)
+

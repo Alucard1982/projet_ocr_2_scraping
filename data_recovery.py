@@ -92,6 +92,9 @@ def scraping_book_description(name_and_url):
                 soup = BeautifulSoup(response.text, "html.parser")
                 title = soup.find('div', {'class': 'col-sm-6 product_main'}).find('h1')
                 description = soup.find('article', {'class': 'product_page'}).find_all('p')
+                list_p = soup.find('div', {'class': 'col-sm-6 product_main'}).find_all('p')
+                nb_stars = list_p[2]['class']
+                list_li = soup.find('ul', {'class': 'breadcrumb'}).find_all('li')
                 image = soup.find('div', {'class': 'item active'}).find('img')
                 src = image['src']
                 base_url = "http://books.toscrape.com/"
@@ -100,16 +103,18 @@ def scraping_book_description(name_and_url):
                 del response
                 dic_book = {'product_page_url': url,
                             'universal_product_code': list_book[0].text,
-                            'category': list_book[1].text,
+                            'category': list_li[2].text.strip(),
                             'title': title.text,
                             'product_description': description[3].text,
                             'price_including_tax': list_book[3].text,
                             'price_excluding_tax': list_book[2].text,
                             'number_available': list_book[5].text,
-                            'review_rating': list_book[6].text,
+                            'review_rating': nb_stars[1] + "-Stars",
                             'url_image': url_image
                             }
                 list_dic_book.append(dic_book)
         list_name_dic_book_by_categorie.append((key, list_dic_book))
         list_dic_book = []
     return list_name_dic_book_by_categorie
+
+

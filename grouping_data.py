@@ -23,5 +23,4 @@ def create_dict(list_link_book_by_category):
             list_name_categorie.append(name_category)
         for i in range(len(list_name_categorie)):
             name_and_url[list_name_categorie[i]] = list_link_book_by_category[i]
-
     return name_and_url
