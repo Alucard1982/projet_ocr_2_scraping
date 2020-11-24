@@ -13,5 +13,5 @@ def main():
     display.data_display_book(dic_data_name_url_by_categorie)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

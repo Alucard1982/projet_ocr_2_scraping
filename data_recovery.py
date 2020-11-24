@@ -15,11 +15,13 @@ def scraping_category():
     response = requests.get(url)
     if response.ok:
         soup = BeautifulSoup(response.text, "html.parser")
-        urls_category = soup.find('ul', {'class': 'nav nav-list'}).find('ul').find_all('li')
+        urls_category = (
+            soup.find("ul", {"class": "nav nav-list"}).find("ul").find_all("li")
+        )
         del response
         for url_category in urls_category:
-            a = url_category.find('a')
-            link_category = a['href']
+            a = url_category.find("a")
+            link_category = a["href"]
             base_url = "http://books.toscrape.com"
             real_link_category = urljoin(base_url, link_category)
             list_link_categorie.append(real_link_category)
@@ -28,10 +30,10 @@ def scraping_category():
 
 def url_book(urls_book, list_link_book):
     for url_book in urls_book:
-        a = url_book.find('a')
-        link_book = a['href']
+        a = url_book.find("a")
+        link_book = a["href"]
         base_url = "http://books.toscrape.com"
-        real_link_book = urljoin(base_url, '/catalogue' + link_book[8:])
+        real_link_book = urljoin(base_url, "/catalogue" + link_book[8:])
         list_link_book.append(real_link_book)
 
 
@@ -49,23 +51,23 @@ def scraping_book_by_categorie(urls_category):
         if response.ok:
             soup = BeautifulSoup(response.text, "html.parser")
             try:
-                button_next = soup.find('li', {'class': 'next'}).find('a')
+                button_next = soup.find("li", {"class": "next"}).find("a")
             except:
                 pass
             soup = BeautifulSoup(response.text, "html.parser")
-            urls_book = soup.findAll('div', {'class': 'image_container'})
+            urls_book = soup.findAll("div", {"class": "image_container"})
             del response
             url_book(urls_book, list_link_book)
             try:
                 while button_next:
                     new_url = url[:-10]
-                    button_next = soup.find('li', {'class': 'next'}).find('a')
-                    href = button_next['href']
+                    button_next = soup.find("li", {"class": "next"}).find("a")
+                    href = button_next["href"]
                     url = urljoin(new_url, href)
                     response = requests.get(url)
                     if response.ok:
                         soup = BeautifulSoup(response.text, "html.parser")
-                        urls_book = soup.findAll('div', {'class': 'image_container'})
+                        urls_book = soup.findAll("div", {"class": "image_container"})
                         del response
                         url_book(urls_book, list_link_book)
             except:
@@ -81,7 +83,7 @@ def scraping_book_description(name_and_url):
     dictionnaire de la description de chaque book par categorie
     :param: le dictionnaire qui regroupe le nom des categories et les urls par categories
     :return: une liste de tuple
-     """
+    """
     list_dic_book = []
     list_name_dic_book_by_categorie = []
     for key, values in tqdm(name_and_url.items()):
@@ -90,31 +92,30 @@ def scraping_book_description(name_and_url):
             response = requests.get(url)
             if response.ok:
                 soup = BeautifulSoup(response.text, "html.parser")
-                title = soup.find('div', {'class': 'col-sm-6 product_main'}).find('h1')
-                description = soup.find('article', {'class': 'product_page'}).find_all('p')
-                list_p = soup.find('div', {'class': 'col-sm-6 product_main'}).find_all('p')
-                nb_stars = list_p[2]['class']
-                list_li = soup.find('ul', {'class': 'breadcrumb'}).find_all('li')
-                image = soup.find('div', {'class': 'item active'}).find('img')
-                src = image['src']
+                title = soup.find("div", {"class": "col-sm-6 product_main"}).find("h1")
+                description = soup.find("article", {"class": "product_page"}).find_all("p")
+                list_p = soup.find("div", {"class": "col-sm-6 product_main"}).find_all("p")
+                nb_stars = list_p[2]["class"]
+                list_li = soup.find("ul", {"class": "breadcrumb"}).find_all("li")
+                image = soup.find("div", {"class": "item active"}).find("img")
+                src = image["src"]
                 base_url = "http://books.toscrape.com/"
                 url_image = urljoin(base_url, src)
-                list_book = soup.find("table", {"class": 'table-striped'}).find_all('td')
+                list_book = soup.find("table", {"class": "table-striped"}).find_all("td")
                 del response
-                dic_book = {'product_page_url': url,
-                            'universal_product_code': list_book[0].text,
-                            'category': list_li[2].text.strip(),
-                            'title': title.text,
-                            'product_description': description[3].text,
-                            'price_including_tax': list_book[3].text,
-                            'price_excluding_tax': list_book[2].text,
-                            'number_available': list_book[5].text,
-                            'review_rating': nb_stars[1] + "-Stars",
-                            'url_image': url_image
-                            }
+                dic_book = {
+                    "product_page_url": url,
+                    "universal_product_code": list_book[0].text,
+                    "category": list_li[2].text.strip(),
+                    "title": title.text,
+                    "product_description": description[3].text,
+                    "price_including_tax": list_book[3].text,
+                    "price_excluding_tax": list_book[2].text,
+                    "number_available": list_book[5].text,
+                    "review_rating": nb_stars[1] + "-Stars",
+                    "url_image": url_image,
+                }
                 list_dic_book.append(dic_book)
         list_name_dic_book_by_categorie.append((key, list_dic_book))
         list_dic_book = []
     return list_name_dic_book_by_categorie
-
-

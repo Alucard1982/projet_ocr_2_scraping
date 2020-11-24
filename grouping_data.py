@@ -15,10 +15,12 @@ def create_dict(list_link_book_by_category):
     response = requests.get(url)
     if response.ok:
         soup = BeautifulSoup(response.text, "html.parser")
-        urls_category = soup.find('ul', {'class': 'nav nav-list'}).find('ul').find_all('li')
+        urls_category = (
+            soup.find("ul", {"class": "nav nav-list"}).find("ul").find_all("li")
+        )
         del response
         for url_category in urls_category:
-            a = url_category.find('a')
+            a = url_category.find("a")
             name_category = a.text.strip()
             list_name_categorie.append(name_category)
         for i in range(len(list_name_categorie)):
