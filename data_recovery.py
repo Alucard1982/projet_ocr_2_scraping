@@ -77,7 +77,7 @@ def scraping_book_by_categorie(urls_category):
     return list_link_book_by_category
 
 
-def scraping_book_description(name_and_url):
+def scraping_book_description(list_link_book_by_category):
     """
     foncion qui premet de récuperer un list de tuple avec pour chaque tuple le nom de la categorie et une liste de
     dictionnaire de la description de chaque book par categorie
@@ -86,8 +86,8 @@ def scraping_book_description(name_and_url):
     """
     list_dic_book = []
     list_name_dic_book_by_categorie = []
-    for key, values in tqdm(name_and_url.items()):
-        for url_book in values:
+    for list_urls_book in tqdm(list_link_book_by_category):
+        for url_book in list_urls_book:
             url = url_book
             response = requests.get(url)
             if response.ok:
@@ -97,6 +97,7 @@ def scraping_book_description(name_and_url):
                 list_p = soup.find("div", {"class": "col-sm-6 product_main"}).find_all("p")
                 nb_stars = list_p[2]["class"]
                 list_li = soup.find("ul", {"class": "breadcrumb"}).find_all("li")
+                name_categorie = list_li[2].text.strip()
                 image = soup.find("div", {"class": "item active"}).find("img")
                 src = image["src"]
                 base_url = "http://books.toscrape.com/"
@@ -106,7 +107,7 @@ def scraping_book_description(name_and_url):
                 dic_book = {
                     "product_page_url": url,
                     "universal_product_code": list_book[0].text,
-                    "category": list_li[2].text.strip(),
+                    "category": name_categorie,
                     "title": title.text,
                     "product_description": description[3].text,
                     "price_including_tax": list_book[3].text,
@@ -116,6 +117,6 @@ def scraping_book_description(name_and_url):
                     "url_image": url_image,
                 }
                 list_dic_book.append(dic_book)
-        list_name_dic_book_by_categorie.append((key, list_dic_book))
+        list_name_dic_book_by_categorie.append((name_categorie, list_dic_book))
         list_dic_book = []
     return list_name_dic_book_by_categorie
